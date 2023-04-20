@@ -5,9 +5,7 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies.sdl2]
-version = "0.35.2"
-features = ["bundled", "static-link"]
 
 [dependencies]
-gl = "0.14.0"
+vulkano = "0.33.0"
+winit = "0.28.3"

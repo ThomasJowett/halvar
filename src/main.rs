@@ -1,26 +1,53 @@
-extern crate sdl2;
-extern crate gl;
+extern crate vulkano;
+extern crate winit;
 
-fn main() {
-    let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
-    let window = video_subsystem
-        .window("Halvar", 900, 700)
-        .opengl()
-        .resizable()
-        .position_centered()
-        .build()
-        .unwrap();
+mod halvar {
+    use winit::{
+        event::{Event, WindowEvent},
+        event_loop::EventLoop,
+        window::{WindowBuilder, Window},
+        dpi::LogicalSize
+    };
 
-    let gl_context = window.gl_create_context().unwrap();
+    pub struct Application {
+        window: Window,
+        event_loop: EventLoop<()>
+    }
 
-    let mut event_pump = sdl_context.event_pump().unwrap();
-    'main: loop {
-        for event in event_pump.poll_iter() {
-            match event {
-                sdl2::event::Event::Quit { .. } => break 'main,
-                _ => {},
-            }
+    impl Application {
+        pub fn new()->Self {
+            let event_loop = EventLoop::new();
+            let window = WindowBuilder::new()
+                .with_title("Halvar")
+                .with_inner_size(LogicalSize::new(800, 600))
+                .build(&event_loop)
+                .unwrap();
+            Application { window, event_loop }
+        }
+    
+        pub fn run(self) {
+    
+            self.event_loop.run(move |event, _, control_flow| {
+                    println!("{event:?}");
+    
+                    match event {
+                        Event::WindowEvent {
+                            event: WindowEvent::CloseRequested,
+                            window_id
+                        } if window_id == self.window.id() => control_flow.set_exit(),
+                        Event::MainEventsCleared => {
+                            self.window.request_redraw();
+                        }
+                        _=> (),
+                    }
+                    
+                });
+            
         }
     }
+}
+
+fn main() {
+    let app = halvar::Application::new();
+    app.run();
 }
