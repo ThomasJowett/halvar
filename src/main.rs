@@ -1,7 +1,9 @@
 extern crate vulkano;
 extern crate winit;
+extern crate vulkano_win;
 
 mod halvar {
+    use vulkano_win::VkSurfaceBuild;
     use winit::{
         event::{Event, WindowEvent},
         event_loop::EventLoop,
@@ -9,34 +11,67 @@ mod halvar {
         dpi::LogicalSize
     };
 
+    use std::sync::Arc;
+    use vulkano::{instance::{
+        Instance,
+        InstanceCreateInfo
+    }, VulkanLibrary, swapchain::Surface};
+
     pub struct Application {
-        window: Window,
+        instance: Arc<Instance>,
+        surface: Arc<Surface>,
         event_loop: EventLoop<()>
     }
 
     impl Application {
         pub fn new()->Self {
+            let instance = Self::create_instance();
             let event_loop = EventLoop::new();
-            let window = WindowBuilder::new()
+            let surface = WindowBuilder::new()
                 .with_title("Halvar")
                 .with_inner_size(LogicalSize::new(800, 600))
-                .build(&event_loop)
+                .build_vk_surface(&event_loop, instance.clone())
                 .unwrap();
-            Application { window, event_loop }
+            Application { instance, surface, event_loop }
+        }
+
+        pub fn create_instance() -> Arc<Instance> {
+            let library = VulkanLibrary::new().unwrap();
+
+            let required_extensions = vulkano_win::required_extensions(&library);
+
+            let instance = Instance::new(
+                library,
+                InstanceCreateInfo { 
+                    enabled_extensions: required_extensions, 
+                    engine_name: Some("Halvar".into()),
+                    enumerate_portability: true,
+                    ..Default::default()
+                    },
+            ).unwrap();
+
+            return instance;
         }
     
         pub fn run(self) {
     
             self.event_loop.run(move |event, _, control_flow| {
-                    println!("{event:?}");
     
                     match event {
                         Event::WindowEvent {
                             event: WindowEvent::CloseRequested,
-                            window_id
-                        } if window_id == self.window.id() => control_flow.set_exit(),
-                        Event::MainEventsCleared => {
-                            self.window.request_redraw();
+                            ..
+                        } => control_flow.set_exit(),
+                        Event::RedrawEventsCleared => {
+                            let window = self.surface.object()
+                                .unwrap()
+                                .downcast_ref::<Window>().unwrap();
+                            let dimensions = window.inner_size();
+                            if dimensions.width == 0 || dimensions.height == 0 {
+                                return;
+                            }
+
+
                         }
                         _=> (),
                     }
