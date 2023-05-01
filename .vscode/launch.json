@@ -8,7 +8,7 @@
             "name": "Launch Halvar (Debug)",
             "type": "lldb",
             "request": "launch",
-            "program": "${workspaceFolder}/target/debug/Halvar${env:EXE_SUFFIX}${env:TARGET_SUFFIX}",
+            "program": "${workspaceFolder}/target/debug/halvar${env:EXE_SUFFIX}${env:TARGET_SUFFIX}",
             "args":[],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
