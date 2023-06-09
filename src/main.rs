@@ -16,7 +16,7 @@ mod halvar {
         swapchain::Surface,
         VulkanLibrary,
         device::{
-            physical::{PhysicalDevice, PhysicalDeviceType}, Device, DeviceCreateInfo, DeviceExtensions, QueueCreateInfo,
+            physical::{PhysicalDevice, PhysicalDeviceType}, DeviceExtensions,
             QueueFlags,
         },
     };
@@ -53,7 +53,7 @@ mod halvar {
 
             let required_extensions = vulkano_win::required_extensions(&library);
 
-            let instance = Instance::new(
+            Instance::new(
                 library,
                 InstanceCreateInfo {
                     enabled_extensions: required_extensions,
@@ -62,9 +62,7 @@ mod halvar {
                     ..Default::default()
                 },
             )
-            .unwrap();
-
-            return instance;
+            .unwrap()
         }
 
         pub fn choose_physical_device(instance: &Arc<Instance>, surface: &Arc<Surface>) -> Arc<PhysicalDevice> {
@@ -73,7 +71,7 @@ mod halvar {
                 ..DeviceExtensions::empty()
             };
 
-            let (physical_device, queue_family_index) = instance
+            let (physical_device, _queue_family_index) = instance
                 .enumerate_physical_devices()
                 .unwrap()
                 .filter(|p| {
@@ -85,7 +83,7 @@ mod halvar {
                     .enumerate()
                     .position(|(i, q)| {
                         q.queue_flags.intersects(QueueFlags::GRAPHICS)
-                        && p.surface_support(i as u32, &surface).unwrap_or(false)
+                        && p.surface_support(i as u32, surface).unwrap_or(false)
                     })
                     .map(|i| (p, i as u32))
                 })
@@ -107,7 +105,8 @@ mod halvar {
                 physical_device.properties().device_name,
                 physical_device.properties().device_type,
             );
-            return physical_device;
+
+            physical_device
         }
 
         pub fn run(self) {
@@ -125,9 +124,7 @@ mod halvar {
                             .downcast_ref::<Window>()
                             .unwrap();
                         let dimensions = window.inner_size();
-                        if dimensions.width == 0 || dimensions.height == 0 {
-                            return;
-                        }
+                        if dimensions.width == 0 || dimensions.height == 0 {}
                     }
                     _ => (),
                 });
