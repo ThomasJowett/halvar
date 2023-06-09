@@ -110,6 +110,14 @@ mod halvar {
         }
 
         pub fn run(self) {
+            if Arc::strong_count(&self.instance) == 0 {
+                println!("Cannot run application without a vulkan instance");
+                return;
+            }
+            if Arc::strong_count(&self.physical_device) == 0 {
+                println!("Cannot run application without a physical rendering device");
+                return;
+            }
             self.event_loop
                 .run(move |event, _, control_flow| match event {
                     Event::WindowEvent {
