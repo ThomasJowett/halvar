@@ -1,5 +1,9 @@
 {
     "cSpell.words": [
-        "Halvar"
+        "Clippy",
+        "Halvar",
+        "swapchain",
+        "vulkano",
+        "winit"
     ]
 }
