@@ -5,5 +5,8 @@
         "swapchain",
         "vulkano",
         "winit"
+    ],
+    "rust-analyzer.linkedProjects": [
+        ".\\Cargo.toml"
     ]
 }
