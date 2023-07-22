@@ -4,6 +4,7 @@ extern crate winit;
 
 mod application;
 mod vertex;
+mod shaders;
 
 fn main() {
     use vertex::halvar::StandardVertex;

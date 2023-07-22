@@ -8,7 +8,10 @@ pub mod halvar {
         image::{ImageUsage, SwapchainImage},
         instance::{Instance, InstanceCreateInfo},
         swapchain::{Surface, Swapchain, SwapchainCreateInfo},
-        VulkanLibrary,
+        VulkanLibrary, 
+        render_pass::{RenderPass, Subpass},
+        pipeline::{GraphicsPipeline, graphics::input_assembly::InputAssemblyState},
+        pipeline::graphics::{vertex_input::Vertex, viewport::ViewportState}
     };
     use vulkano_win::VkSurfaceBuild;
     use winit::{
@@ -18,6 +21,11 @@ pub mod halvar {
         window::{Window, WindowBuilder},
     };
 
+    use crate::shaders::halvar::vs;
+    use crate::shaders::halvar::fs;
+
+    use crate::vertex::halvar::StandardVertex;
+
     pub struct Application {
         instance: Arc<Instance>,
         surface: Arc<Surface>,
@@ -25,6 +33,8 @@ pub mod halvar {
         queue: Arc<Queue>,
         swapchain: Arc<Swapchain>,
         images: Vec<Arc<SwapchainImage>>,
+        render_pass: Arc<RenderPass>,
+        pipeline: Arc<GraphicsPipeline>,
         event_loop: EventLoop<()>,
     }
 
@@ -42,6 +52,10 @@ pub mod halvar {
 
             let (swapchain, images) = Self::create_swapchain(&device, &surface);
 
+            let render_pass = Self::create_render_pass(&device, &swapchain);
+
+            let pipeline = Self::create_pipeline(&device, &render_pass);
+
             Application {
                 instance,
                 surface,
@@ -49,6 +63,8 @@ pub mod halvar {
                 queue,
                 swapchain,
                 images,
+                render_pass,
+                pipeline,
                 event_loop,
             }
         }
@@ -167,6 +183,44 @@ pub mod halvar {
             .unwrap()
         }
 
+        pub fn create_render_pass(
+            device: &Arc<Device>,
+            swapchain: &Arc<Swapchain>,
+        ) -> Arc<RenderPass> {
+            vulkano::single_pass_renderpass!(
+                device.clone(),
+                attachments: {
+                    color: {
+                        load: Clear,
+                        store: Store,
+                        format: swapchain.image_format(),
+                        samples:1,
+                    },
+                },
+                pass: {
+                    color: [color],
+                    depth_stencil: {},
+                },
+            )
+            .unwrap()
+        }
+
+        fn create_pipeline(device: &Arc<Device>, render_pass: &Arc<RenderPass>) -> Arc<GraphicsPipeline> {
+            
+            let vs = vs::load(device.clone()).unwrap();
+            let fs = fs::load(device.clone()).unwrap();
+
+            GraphicsPipeline::start()
+            .render_pass(Subpass::from(render_pass.clone(), 0).unwrap())
+            .vertex_input_state(StandardVertex::per_vertex())
+            .input_assembly_state(InputAssemblyState::new())
+            .vertex_shader(vs.entry_point("main").unwrap(), ())
+            .viewport_state(ViewportState::viewport_dynamic_scissor_irrelevant())
+            .fragment_shader(fs.entry_point("main").unwrap(), ())
+            .build(device.clone())
+            .expect("Failed to create pipeline")
+        }
+
         pub fn run(mut self) {
             if Arc::strong_count(&self.instance) == 0 {
                 println!("Cannot run application without a vulkan instance");
@@ -190,6 +244,14 @@ pub mod halvar {
             }
             if Vec::is_empty(&self.images) {
                 println!("Cannot run application without vulkan images");
+                return;
+            }
+            if Arc::strong_count(&self.render_pass) == 0 {
+                println!("Cannot run application without vulkan render pass");
+                return;
+            }
+            if Arc::strong_count(&self.pipeline) == 0 {
+                println!("Cannot run application without vulkan pipeline");
                 return;
             }
 
