@@ -1,6 +1,5 @@
-
 use halvar::halvar::run;
 
 fn main() {
-    run();
+    pollster::block_on(run());
 }

@@ -1,12 +1,13 @@
 {
-    "cSpell.words": [
-        "Clippy",
-        "Halvar",
-        "swapchain",
-        "vulkano",
-        "winit"
-    ],
-    "rust-analyzer.linkedProjects": [
-        "Cargo.toml"
-    ]
+  "cSpell.words": [
+    "Clippy",
+    "Halvar",
+    "srgb",
+    "swapchain",
+    "Vsync",
+    "vulkano",
+    "webgl",
+    "winit"
+  ],
+  "rust-analyzer.linkedProjects": ["Cargo.toml"]
 }
