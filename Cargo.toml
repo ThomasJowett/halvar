@@ -3,6 +3,12 @@ name = "halvar"
 version = "0.1.0"
 edition = "2021"
 authors = ["Thomas Jowett <https://github.com/ThomasJowett"]
+description = "A 3D Renderer"
+
+[package.metadata.bundle]
+name = "Halvar"
+identifier = "com.ThomasJowett.halvar"
+# icon = "path/to/icon.icns"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -15,15 +21,12 @@ env_logger = "0.10"
 log = "0.4"
 wgpu = "0.18"
 pollster = "0.3"
+bytemuck = { version = "1.12", features = ["derive"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.6"
 console_log = "1.0"
-wgpu = {version = "0.18", features = ["webgl"]}
+wgpu = { version = "0.18", features = ["webgl"] }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4.30"
-web-sys = { version = "0.3", features = [
-    "Document",
-    "Window",
-    "Element",
-]}
+web-sys = { version = "0.3", features = ["Document", "Window", "Element"] }
