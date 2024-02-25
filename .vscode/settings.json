@@ -1,20 +1,24 @@
 {
   "cSpell.words": [
     "bindgen",
+    "bytemuck",
     "Clippy",
     "Halvar",
     "mipmap",
     "Multisample",
     "multisampled",
     "multiview",
+    "repr",
     "srgb",
     "swapchain",
+    "Unorm",
     "Vsync",
     "vulkano",
     "webgl",
     "wgpu",
     "wgsl",
-    "winit"
+    "winit",
+    "Zeroable"
   ],
-  "rust-analyzer.linkedProjects": ["Cargo.toml"]
+  "rust-analyzer.linkedProjects": ["Cargo.toml", ".\\Cargo.toml"]
 }
