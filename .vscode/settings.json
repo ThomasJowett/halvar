@@ -1,12 +1,19 @@
 {
   "cSpell.words": [
+    "bindgen",
     "Clippy",
     "Halvar",
+    "mipmap",
+    "Multisample",
+    "multisampled",
+    "multiview",
     "srgb",
     "swapchain",
     "Vsync",
     "vulkano",
     "webgl",
+    "wgpu",
+    "wgsl",
     "winit"
   ],
   "rust-analyzer.linkedProjects": ["Cargo.toml"]
