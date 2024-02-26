@@ -1,18 +1,15 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Halvar (Debug)",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/target/debug/halvar${env:EXE_SUFFIX}${env:TARGET_SUFFIX}",
-            "args":[],
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "preLaunchTask": "rust: cargo build"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Halvar (Debug)",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/target/debug/halvar_viewer${env:EXE_SUFFIX}${env:TARGET_SUFFIX}",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "preLaunchTask": "rust: cargo build"
+    }
+  ]
 }
