@@ -2,8 +2,9 @@
 name = "halvar"
 version = "0.1.0"
 edition = "2021"
-authors = ["Thomas Jowett <https://github.com/ThomasJowett"]
+authors = ["Thomas Jowett <https://github.com/ThomasJowett>"]
 description = "A 3D Renderer"
+license = "MIT"
 
 [package.metadata.bundle]
 name = "Halvar"
@@ -11,8 +12,12 @@ identifier = "com.ThomasJowett.halvar"
 # icon = "path/to/icon.icns"
 
 [lib]
+name = "halvar"
 crate-type = ["cdylib", "rlib"]
 
+[[bin]]
+name = "halvar_viewer"
+path = "src/main.rs"
 
 [dependencies]
 cfg-if = "1"
@@ -24,7 +29,6 @@ pollster = "0.3"
 bytemuck = { version = "1.12", features = ["derive"] }
 image = "0.24"
 anyhow = "1.0"
-
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_error_panic_hook = "0.1.6"
