@@ -59,8 +59,8 @@ struct State {
     num_indices: u32,
     diffuse_bind_group: wgpu::BindGroup,
     _diffuse_texture: texture::Texture,
-    camera: Camera,
-    camera_buffer: wgpu::Buffer,
+    _camera: Camera,
+    _camera_buffer: wgpu::Buffer,
     camera_bind_group: wgpu::BindGroup,
     window: Window,
 }
@@ -278,9 +278,9 @@ impl State {
             num_indices,
             diffuse_bind_group,
             _diffuse_texture: diffuse_texture,
-            camera,
+            _camera: camera,
             camera_bind_group,
-            camera_buffer,
+            _camera_buffer: camera_buffer,
             window,
         }
     }
