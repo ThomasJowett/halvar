@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["Thomas Jowett <https://github.com/ThomasJowett>"]
 description = "A 3D Renderer"
 license = "MIT"
+repository = "<https://github.com/Thomasjowett/halvar>"
 
 [package.metadata.bundle]
 name = "Halvar"
