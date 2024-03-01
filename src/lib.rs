@@ -21,11 +21,113 @@ struct Camera {
 }
 
 impl Camera {
-    fn build_view_perspective_matrix(&self) -> nalgebra::Matrix4<f32> {
+    fn new(
+        eye: nalgebra::Point3<f32>,
+        target: nalgebra::Point3<f32>,
+        up: nalgebra::Vector3<f32>,
+        aspect: f32,
+        fovy: f32,
+        znear: f32,
+        zfar: f32,
+    ) -> Self {
+        Self {
+            eye,
+            target,
+            up,
+            aspect,
+            fovy,
+            znear,
+            zfar,
+        }
+    }
+
+    pub fn build_view_perspective_matrix(&self) -> nalgebra::Matrix4<f32> {
         let view = nalgebra::Matrix4::look_at_rh(&self.eye, &self.target, &self.up);
         let projection = nalgebra::Perspective3::new(self.aspect, self.fovy, self.znear, self.zfar)
             .to_homogeneous();
         projection * view
+    }
+}
+
+struct CameraController {
+    speed: f32,
+    is_forward_pressed: bool,
+    is_backward_pressed: bool,
+    is_left_pressed: bool,
+    is_right_pressed: bool,
+}
+
+impl CameraController {
+    fn new(speed: f32) -> Self {
+        Self {
+            speed,
+            is_forward_pressed: false,
+            is_backward_pressed: false,
+            is_left_pressed: false,
+            is_right_pressed: false,
+        }
+    }
+
+    pub fn process_events(&mut self, event: &WindowEvent) -> bool {
+        match event {
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state,
+                        virtual_keycode: Some(keycode),
+                        ..
+                    },
+                ..
+            } => {
+                let is_pressed = *state == ElementState::Pressed;
+                match keycode {
+                    VirtualKeyCode::W | VirtualKeyCode::Up => {
+                        self.is_forward_pressed = is_pressed;
+                        true
+                    }
+                    VirtualKeyCode::A | VirtualKeyCode::Left => {
+                        self.is_left_pressed = is_pressed;
+                        true
+                    }
+                    VirtualKeyCode::S | VirtualKeyCode::Down => {
+                        self.is_backward_pressed = is_pressed;
+                        true
+                    }
+                    VirtualKeyCode::D | VirtualKeyCode::Right => {
+                        self.is_right_pressed = is_pressed;
+                        true
+                    }
+                    _ => false,
+                }
+            }
+            _ => false,
+        }
+    }
+
+    fn update(&self, camera: &mut Camera) {
+        let forward = camera.target - camera.eye;
+        let forward_norm = forward.normalize();
+        let forward_mag = forward.norm();
+
+        if self.is_forward_pressed && forward_mag > self.speed {
+            camera.eye += forward_norm * self.speed;
+        }
+        if self.is_backward_pressed {
+            camera.eye -= forward_norm * self.speed;
+        }
+
+        let right = forward_norm.cross(&camera.up);
+
+        let forward = camera.target - camera.eye;
+        let forward_mag = forward.norm();
+
+        if self.is_right_pressed {
+            camera.eye = camera.target - (forward + right * self.speed).normalize() * forward_mag;
+        }
+
+        if self.is_left_pressed {
+            camera.eye = camera.target - (forward - right * self.speed).normalize() * forward_mag;
+        }
     }
 }
 
@@ -59,7 +161,9 @@ struct State {
     num_indices: u32,
     diffuse_bind_group: wgpu::BindGroup,
     _diffuse_texture: texture::Texture,
-    _camera: Camera,
+    camera: Camera,
+    camera_controller: CameraController,
+    camera_uniform: CameraUniform,
     _camera_buffer: wgpu::Buffer,
     camera_bind_group: wgpu::BindGroup,
     window: Window,
@@ -166,15 +270,15 @@ impl State {
             label: Some("diffuse_bind_group"),
         });
 
-        let camera = Camera {
-            eye: nalgebra::Point3::new(0.0, 1.0, 2.0),
-            target: nalgebra::Point3::origin(),
-            up: *nalgebra::Vector3::y_axis(),
-            aspect: config.width as f32 / config.height as f32,
-            fovy: 45.0,
-            znear: 0.1,
-            zfar: 100.0,
-        };
+        let camera = Camera::new(
+            nalgebra::Point3::new(0.0, 1.0, 2.0),
+            nalgebra::Point3::origin(),
+            *nalgebra::Vector3::y_axis(),
+            config.width as f32 / config.height as f32,
+            45.0,
+            0.1,
+            100.0,
+        );
 
         let mut camera_uniform = CameraUniform::new();
         camera_uniform.update_view_projection(&camera);
@@ -266,6 +370,8 @@ impl State {
 
         let num_indices = INDICES.len() as u32;
 
+        let camera_controller = CameraController::new(0.2);
+
         Self {
             surface,
             device,
@@ -278,9 +384,11 @@ impl State {
             num_indices,
             diffuse_bind_group,
             _diffuse_texture: diffuse_texture,
-            _camera: camera,
+            camera,
+            camera_uniform,
             camera_bind_group,
             _camera_buffer: camera_buffer,
+            camera_controller,
             window,
         }
     }
@@ -298,12 +406,18 @@ impl State {
         }
     }
 
-    fn input(&mut self, _event: &WindowEvent) -> bool {
-        false
+    fn input(&mut self, event: &WindowEvent) -> bool {
+        self.camera_controller.process_events(event)
     }
 
     fn update(&mut self) {
-        //TODO: implement update
+        self.camera_controller.update(&mut self.camera);
+        self.camera_uniform.update_view_projection(&self.camera);
+        self.queue.write_buffer(
+            &self._camera_buffer,
+            0,
+            bytemuck::cast_slice(&[self.camera_uniform]),
+        );
     }
 
     fn render(&mut self) -> Result<(), wgpu::SurfaceError> {

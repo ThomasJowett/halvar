@@ -3,11 +3,13 @@
     "bindgen",
     "bytemuck",
     "Clippy",
+    "fovy",
     "Halvar",
     "mipmap",
     "Multisample",
     "multisampled",
     "multiview",
+    "nalgebra",
     "repr",
     "srgb",
     "swapchain",
@@ -18,7 +20,9 @@
     "wgpu",
     "wgsl",
     "winit",
-    "Zeroable"
+    "Zeroable",
+    "zfar",
+    "znear"
   ],
-  "rust-analyzer.linkedProjects": ["Cargo.toml", ".\\Cargo.toml"]
+  "rust-analyzer.linkedProjects": ["Cargo.toml"]
 }
